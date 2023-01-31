@@ -39,6 +39,7 @@ from kivy.app import App  # noqa: E402
 from kivy.lang.builder import Builder  # noqa: E402
 from kivy.graphics.texture import Texture  # noqa: E402
 
+
 class CameraApp(App):
     def __init__(self, address: str, port: int, stream_every_n: int) -> None:
         super().__init__()
@@ -50,7 +51,7 @@ class CameraApp(App):
         self.tasks: List[asyncio.Task] = []
 
     def build(self):
-        return Builder.load_file('res/main.kv')
+        return Builder.load_file("res/main.kv")
 
     def on_exit_btn(self) -> None:
         """Kills the running kivy application."""
@@ -85,7 +86,10 @@ class CameraApp(App):
             # check the state of the service
             state = await client.get_state()
 
-            if state.value not in [service_pb2.ServiceState.IDLE, service_pb2.ServiceState.RUNNING]:
+            if state.value not in [
+                service_pb2.ServiceState.IDLE,
+                service_pb2.ServiceState.RUNNING,
+            ]:
                 # Cancel existing stream, if it exists
                 if response_stream is not None:
                     response_stream.cancel()
@@ -116,10 +120,19 @@ class CameraApp(App):
                 # Skip if view_name was not included in frame
                 try:
                     # Decode the image and render it in the correct kivy texture
-                    img = self.image_decoder.decode(getattr(frame, view_name).image_data)
-                    texture = Texture.create(size=(img.shape[1], img.shape[0]), icolorfmt="bgr")
+                    img = self.image_decoder.decode(
+                        getattr(frame, view_name).image_data
+                    )
+                    texture = Texture.create(
+                        size=(img.shape[1], img.shape[0]), icolorfmt="bgr"
+                    )
                     texture.flip_vertical()
-                    texture.blit_buffer(img.tobytes(), colorfmt="bgr", bufferfmt="ubyte", mipmap_generation=False)
+                    texture.blit_buffer(
+                        img.tobytes(),
+                        colorfmt="bgr",
+                        bufferfmt="ubyte",
+                        mipmap_generation=False,
+                    )
                     self.root.ids[view_name].texture = texture
 
                 except Exception as e:
@@ -129,13 +142,19 @@ class CameraApp(App):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog="amiga-camera-app")
     parser.add_argument("--port", type=int, required=True, help="The camera port.")
-    parser.add_argument("--address", type=str, default="localhost", help="The camera address")
-    parser.add_argument("--stream-every-n", type=int, default=4, help="Streaming frequency")
+    parser.add_argument(
+        "--address", type=str, default="localhost", help="The camera address"
+    )
+    parser.add_argument(
+        "--stream-every-n", type=int, default=4, help="Streaming frequency"
+    )
     args = parser.parse_args()
 
     loop = asyncio.get_event_loop()
     try:
-        loop.run_until_complete(CameraApp(args.address, args.port, args.stream_every_n).app_func())
+        loop.run_until_complete(
+            CameraApp(args.address, args.port, args.stream_every_n).app_func()
+        )
     except asyncio.CancelledError:
         pass
     loop.close()
