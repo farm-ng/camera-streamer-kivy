@@ -100,7 +100,7 @@ class CameraApp(App):
 
             # Create the stream
             if response_stream is None:
-                response_stream = client.stream_frames(every_n=1)
+                response_stream = client.stream_frames(every_n=self.stream_every_n)
 
             try:
                 # try/except so app doesn't crash on killed service
@@ -146,7 +146,7 @@ if __name__ == "__main__":
         "--address", type=str, default="localhost", help="The camera address"
     )
     parser.add_argument(
-        "--stream-every-n", type=int, default=4, help="Streaming frequency"
+        "--stream-every-n", type=int, default=1, help="Streaming frequency"
     )
     args = parser.parse_args()
 
