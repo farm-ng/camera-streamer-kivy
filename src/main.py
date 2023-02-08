@@ -23,6 +23,9 @@ from farm_ng.service import service_pb2
 from farm_ng.service.service_client import ClientConfig
 from turbojpeg import TurboJPEG
 
+# Import OpenCV here
+import cv2
+
 os.environ["KIVY_NO_ARGS"] = "1"
 
 
@@ -123,6 +126,10 @@ class CameraApp(App):
                     img = self.image_decoder.decode(
                         getattr(frame, view_name).image_data
                     )
+
+                    # Demo opencv use - draw a red circle in the center of the image
+                    cv2.circle(img,(img.shape[1]//2, img.shape[0]//2), 100, (0,0,255), -1)
+
                     texture = Texture.create(
                         size=(img.shape[1], img.shape[0]), icolorfmt="bgr"
                     )
