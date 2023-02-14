@@ -16,12 +16,13 @@ import asyncio
 import os
 from typing import List
 
+import cv2
 import grpc
+import numpy as np
 from farm_ng.oak import oak_pb2
 from farm_ng.oak.camera_client import OakCameraClient
 from farm_ng.service import service_pb2
 from farm_ng.service.service_client import ClientConfig
-from turbojpeg import TurboJPEG
 
 os.environ["KIVY_NO_ARGS"] = "1"
 
@@ -47,7 +48,6 @@ class CameraApp(App):
         self.port = port
         self.stream_every_n = stream_every_n
 
-        self.image_decoder = TurboJPEG()
         self.tasks: List[asyncio.Task] = []
 
     def build(self):
@@ -120,8 +120,11 @@ class CameraApp(App):
                 # Skip if view_name was not included in frame
                 try:
                     # Decode the image and render it in the correct kivy texture
-                    img = self.image_decoder.decode(
-                        getattr(frame, view_name).image_data
+                    img = cv2.imdecode(
+                        np.frombuffer(
+                            getattr(frame, view_name).image_data, dtype=np.uint8
+                        ),
+                        cv2.IMREAD_UNCHANGED,
                     )
                     texture = Texture.create(
                         size=(img.shape[1], img.shape[0]), icolorfmt="bgr"
