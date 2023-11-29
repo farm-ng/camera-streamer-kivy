@@ -12,22 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from __future__ import annotations
+
 import argparse
 import asyncio
-import os
 import logging
+import os
 from pathlib import Path
 from typing import Literal
 
-from farm_ng.core.uri_pb2 import Uri
 from farm_ng.core.event_client import EventClient
-from farm_ng.core.event_service_pb2 import (
-    EventServiceConfig,
-    EventServiceConfigList,
-    SubscribeRequest,
-)
+from farm_ng.core.event_service_pb2 import EventServiceConfig
+from farm_ng.core.event_service_pb2 import EventServiceConfigList
+from farm_ng.core.event_service_pb2 import SubscribeRequest
 from farm_ng.core.events_file_reader import proto_from_json_file
-
+from farm_ng.core.uri_pb2 import Uri
 from kornia_rs import ImageDecoder
 
 os.environ["KIVY_NO_ARGS"] = "1"
@@ -78,19 +76,24 @@ class CameraApp(App):
 
         # stream camera frames
         self.image_subscription_tasks: list[asyncio.Task] = [
-            asyncio.create_task(self.stream_camera(view_name)) for view_name in self.STREAM_NAMES
+            asyncio.create_task(self.stream_camera(view_name))
+            for view_name in self.STREAM_NAMES
         ]
 
         return await asyncio.gather(run_wrapper(), *self.image_subscription_tasks)
 
-    async def stream_camera(self, view_name: Literal["rgb", "disparity", "left", "right"] = "rgb") -> None:
-        """Subscribes to the camera service and populates the tabbed panel with all 4 image streams"""
+    async def stream_camera(
+        self, view_name: Literal["rgb", "disparity", "left", "right"] = "rgb"
+    ) -> None:
+        """Subscribes to the camera service and populates the tabbed panel with all 4 image streams."""
         while self.root is None:
             await asyncio.sleep(0.01)
-        
+
         async for _, message in EventClient(self.service_config).subscribe(
-            SubscribeRequest(uri=Uri(path=f"/{view_name}"), every_n=self.stream_every_n),
-            decode=True
+            SubscribeRequest(
+                uri=Uri(path=f"/{view_name}"), every_n=self.stream_every_n
+            ),
+            decode=True,
         ):
             try:
                 img = self.image_decoder.decode(message.image_data)
@@ -99,9 +102,7 @@ class CameraApp(App):
                 continue
 
             # create the opengl texture and set it to the image
-            texture = Texture.create(
-                size=(img.shape[1], img.shape[0]), icolorfmt="rgb"
-            )
+            texture = Texture.create(size=(img.shape[1], img.shape[0]), icolorfmt="rgb")
             texture.flip_vertical()
             texture.blit_buffer(
                 bytes(img.data),
@@ -116,7 +117,7 @@ def find_config_by_name(
     service_configs: EventServiceConfigList, name: str
 ) -> EventServiceConfig | None:
     """Utility function to find a service config by name.
-    
+
     Args:
         service_configs: List of service configs
         name: Name of the service to find
