@@ -57,7 +57,7 @@ class CameraApp(App):
         self.stream_every_n = stream_every_n
 
         self.image_decoder = ImageDecoder()
-        self.image_subscriber_task: asyncio.Task | None = None
+        self.image_subscription_tasks: list[asyncio.Task] = []
 
     def build(self):
         return Builder.load_file("res/main.kv")
