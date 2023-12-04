@@ -1,13 +1,11 @@
 {
     "services": {
-        "camera-app": {
-            "type": "app_third_party",
-            "python": false,
-            "args": [
-                "entry.sh"
-            ],
-            "http_gui_port": 0,
-            "display_name": "Kivy Camera App"
+        "camera-app-kivy": {
+            "name": "camera-app-kivy",
+            "type": "app",
+            "exec_cmd": "/mnt/managed_home/farm-ng-user-edgar/camera-streamer-kivy/entry.sh",
+            "display_name": "Kivy Camera App",
+            "autostart": false
         }
     }
 }
