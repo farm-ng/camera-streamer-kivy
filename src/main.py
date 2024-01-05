@@ -19,6 +19,7 @@ import logging
 import os
 from pathlib import Path
 from typing import Literal
+import cv2
 
 from farm_ng.core.event_client import EventClient
 from farm_ng.core.event_service_pb2 import EventServiceConfig
@@ -26,7 +27,9 @@ from farm_ng.core.event_service_pb2 import EventServiceConfigList
 from farm_ng.core.event_service_pb2 import SubscribeRequest
 from farm_ng.core.events_file_reader import proto_from_json_file
 from farm_ng.core.uri_pb2 import Uri
-from kornia_rs import ImageDecoder
+# from kornia_rs import ImageDecoder
+from turbojpeg import TurboJPEG
+
 
 os.environ["KIVY_NO_ARGS"] = "1"
 
@@ -56,7 +59,8 @@ class CameraApp(App):
         self.service_config = service_config
         self.stream_every_n = stream_every_n
 
-        self.image_decoder = ImageDecoder()
+        # self.image_decoder = ImageDecoder()
+        self.image_decoder = TurboJPEG()
         self.image_subscription_tasks: list[asyncio.Task] = []
 
     def build(self):
@@ -95,6 +99,7 @@ class CameraApp(App):
             ),
             decode=True,
         ):
+            
             try:
                 img = self.image_decoder.decode(message.image_data)
             except Exception as e:
@@ -145,7 +150,9 @@ if __name__ == "__main__":
     )
 
     # filter out services to pass to the events client manager
+    print(args.camera_name)
     oak_service_config = find_config_by_name(service_config_list, args.camera_name)
+    # print(oak_service_config)
     if oak_service_config is None:
         raise RuntimeError(f"Could not find service config for {args.camera_name}")
 
