@@ -19,7 +19,6 @@ import logging
 import os
 from pathlib import Path
 from typing import Literal
-import cv2
 
 from farm_ng.core.event_client import EventClient
 from farm_ng.core.event_service_pb2 import EventServiceConfig
@@ -27,9 +26,7 @@ from farm_ng.core.event_service_pb2 import EventServiceConfigList
 from farm_ng.core.event_service_pb2 import SubscribeRequest
 from farm_ng.core.events_file_reader import proto_from_json_file
 from farm_ng.core.uri_pb2 import Uri
-# from kornia_rs import ImageDecoder
 from turbojpeg import TurboJPEG
-
 
 os.environ["KIVY_NO_ARGS"] = "1"
 
@@ -59,7 +56,6 @@ class CameraApp(App):
         self.service_config = service_config
         self.stream_every_n = stream_every_n
 
-        # self.image_decoder = ImageDecoder()
         self.image_decoder = TurboJPEG()
         self.image_subscription_tasks: list[asyncio.Task] = []
 
@@ -99,7 +95,7 @@ class CameraApp(App):
             ),
             decode=True,
         ):
-            
+
             try:
                 img = self.image_decoder.decode(message.image_data)
             except Exception as e:
@@ -107,11 +103,11 @@ class CameraApp(App):
                 continue
 
             # create the opengl texture and set it to the image
-            texture = Texture.create(size=(img.shape[1], img.shape[0]), icolorfmt="rgb")
+            texture = Texture.create(size=(img.shape[1], img.shape[0]), icolorfmt="bgr")
             texture.flip_vertical()
             texture.blit_buffer(
                 bytes(img.data),
-                colorfmt="rgb",
+                colorfmt="bgr",
                 bufferfmt="ubyte",
                 mipmap_generation=False,
             )
