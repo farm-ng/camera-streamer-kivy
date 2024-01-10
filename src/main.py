@@ -59,6 +59,8 @@ class CameraApp(App):
 
         self.image_decoder = TurboJPEG()
 
+        self.view_name = "rgb"
+
         self.async_tasks: list[asyncio.Task] = []
 
     def build(self):
@@ -69,6 +71,9 @@ class CameraApp(App):
         for task in self.tasks:
             task.cancel()
         App.get_running_app().stop()
+
+    def update_view(self, view_name: str):
+        self.view_name = view_name
 
     async def app_func(self):
         async def run_wrapper():
@@ -114,24 +119,27 @@ class CameraApp(App):
             SubscribeRequest(uri=Uri(path=f"/{view_name}"), every_n=rate),
             decode=False,
         ):
-            print(view_name)
-            message = payload_to_protobuf(event, payload)
-            try:
-                img = self.image_decoder.decode(message.image_data)
-            except Exception as e:
-                logger.exception(f"Error decoding image: {e}")
-                continue
+            if view_name == self.view_name:
+                print(self.view_name)
+                message = payload_to_protobuf(event, payload)
+                try:
+                    img = self.image_decoder.decode(message.image_data)
+                except Exception as e:
+                    logger.exception(f"Error decoding image: {e}")
+                    continue
 
-            # create the opengl texture and set it to the image
-            texture = Texture.create(size=(img.shape[1], img.shape[0]), icolorfmt="bgr")
-            texture.flip_vertical()
-            texture.blit_buffer(
-                bytes(img.data),
-                colorfmt="bgr",
-                bufferfmt="ubyte",
-                mipmap_generation=False,
-            )
-            self.root.ids[view_name].texture = texture
+                # create the opengl texture and set it to the image
+                texture = Texture.create(
+                    size=(img.shape[1], img.shape[0]), icolorfmt="bgr"
+                )
+                texture.flip_vertical()
+                texture.blit_buffer(
+                    bytes(img.data),
+                    colorfmt="bgr",
+                    bufferfmt="ubyte",
+                    mipmap_generation=False,
+                )
+                self.root.ids[view_name].texture = texture
 
 
 def find_config_by_name(
