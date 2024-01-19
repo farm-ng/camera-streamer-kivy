@@ -94,7 +94,7 @@ class CameraApp(App):
                 oak0_client = EventClient(config)
 
         if oak0_client is None:
-            raise RuntimeError(f"No {config} service config in {self.service_config}")
+            raise RuntimeError(f"No {config.name} service config provided in service_config.json")
 
         # stream camera frames
         self.tasks: list[asyncio.Task] = [
