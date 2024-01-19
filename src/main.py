@@ -120,7 +120,6 @@ class CameraApp(App):
             decode=False,
         ):
             if view_name == self.view_name:
-                print(self.view_name)
                 message = payload_to_protobuf(event, payload)
                 try:
                     img = self.image_decoder.decode(message.image_data)
