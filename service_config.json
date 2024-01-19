@@ -8,7 +8,7 @@
         "subscriptions": [
             {
                 "uri": {
-                    "path": "/rgb",
+                    "path": "*",
                     "query": "service_name=oak0"
                 },
                 "every_n": 1
