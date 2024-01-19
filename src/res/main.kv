@@ -4,18 +4,22 @@ RelativeLayout:
         do_default_tab: False
         TabbedPanelItem:
             text: "Rgb"
+            on_press: app.update_view('rgb')
             Image:
                 id: rgb
         TabbedPanelItem:
             text: "Disparity"
+            on_press: app.update_view('disparity')
             Image:
                 id: disparity
         TabbedPanelItem:
             text: "Left"
+            on_press: app.update_view('left')
             Image:
                 id: left
         TabbedPanelItem:
             text: "Right"
+            on_press: app.update_view('right')
             Image:
                 id: right
     Button:
