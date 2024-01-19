@@ -93,7 +93,7 @@ class CameraApp(App):
             if config.name == "oak0":
                 oak0_client = EventClient(config)
 
-        if None in [oak0_client]:
+        if oak0_client is None:
             raise RuntimeError(f"No {config} service config in {self.service_config}")
 
         # stream camera frames
