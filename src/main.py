@@ -72,13 +72,8 @@ class CameraApp(App):
             task.cancel()
         App.get_running_app().stop()
 
-    def update_view(self, view_name: str):
-        self.view_name = view_name
-
     async def app_func(self):
         async def run_wrapper():
-            # we don't actually need to set asyncio as the lib because it is
-            # the default, but it doesn't hurt to be explicit
             await self.async_run(async_lib="asyncio")
             for task in self.async_tasks:
                 task.cancel()
@@ -94,7 +89,9 @@ class CameraApp(App):
                 oak0_client = EventClient(config)
 
         if oak0_client is None:
-            raise RuntimeError(f"No {config.name} service config provided in service_config.json")
+            raise RuntimeError(
+                f"No {config.name} service config provided in service_config.json"
+            )
 
         # stream camera frames
         self.tasks: list[asyncio.Task] = [
@@ -119,6 +116,8 @@ class CameraApp(App):
             SubscribeRequest(uri=Uri(path=f"/{view_name}"), every_n=rate),
             decode=False,
         ):
+            self.view_name = self.root.ids["tab_root"].current_tab.text
+
             if view_name == self.view_name:
                 message = payload_to_protobuf(event, payload)
                 try:
@@ -139,21 +138,6 @@ class CameraApp(App):
                     mipmap_generation=False,
                 )
                 self.root.ids[view_name].texture = texture
-
-
-def find_config_by_name(
-    service_configs: EventServiceConfigList, name: str
-) -> EventServiceConfig | None:
-    """Utility function to find a service config by name.
-
-    Args:
-        service_configs: List of service configs
-        name: Name of the service to find
-    """
-    for config in service_configs.configs:
-        if config.name == name:
-            return config
-    return None
 
 
 if __name__ == "__main__":
