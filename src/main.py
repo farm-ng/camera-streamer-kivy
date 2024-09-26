@@ -26,7 +26,6 @@ from farm_ng.core.event_service_pb2 import EventServiceConfigList
 from farm_ng.core.event_service_pb2 import SubscribeRequest
 from farm_ng.core.events_file_reader import payload_to_protobuf
 from farm_ng.core.events_file_reader import proto_from_json_file
-from farm_ng.core.uri_pb2 import Uri
 from turbojpeg import TurboJPEG
 
 os.environ["KIVY_NO_ARGS"] = "1"
@@ -94,7 +93,9 @@ class CameraApp(App):
                 oak0_client = EventClient(config)
 
         if oak0_client is None:
-            raise RuntimeError(f"No {config.name} service config provided in service_config.json")
+            raise RuntimeError(
+                f"No {config.name} service config provided in service_config.json"
+            )
 
         # stream camera frames
         self.tasks: list[asyncio.Task] = [
@@ -114,9 +115,10 @@ class CameraApp(App):
             await asyncio.sleep(0.01)
 
         rate = oak_client.config.subscriptions[0].every_n
+        uri = {"path": f"{oak_client.config.name}/{view_name}"}
 
         async for event, payload in oak_client.subscribe(
-            SubscribeRequest(uri=Uri(path=f"/{view_name}"), every_n=rate),
+            SubscribeRequest(uri=uri, every_n=rate),
             decode=False,
         ):
             if view_name == self.view_name:
